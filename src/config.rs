@@ -43,16 +43,19 @@ impl SysConfig {
         true
     }
 
-    pub fn difference(&self, prev: &[String]) -> (Vec<String>, Vec<String>) {
+    pub fn difference(&self, prev: &SysConfig) -> (Vec<String>, Vec<String>) {
         let add: Vec<String> = self
             .packages
             .clone()
             .unwrap_or(vec![])
             .iter()
-            .filter(|x| !prev.contains(x))
+            .filter(|x| !prev.packages.as_ref().unwrap_or(&vec![]).contains(x))
             .cloned()
             .collect();
         let remove: Vec<String> = prev
+            .packages
+            .as_ref()
+            .unwrap_or(&vec![])
             .iter()
             .filter(|x| !self.packages.clone().unwrap_or(vec![]).contains(x))
             .cloned()

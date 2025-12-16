@@ -25,7 +25,7 @@ fn main() {
         std::process::exit(-1);
     }
 
-    let (add, remove) = cfg.difference(prev.packages.as_ref().unwrap_or(&vec![]));
+    let (add, remove) = cfg.difference(&prev);
 
     print_header("Upgrading system");
     run("/usr/bin/pacman", &["-Syu", "--color", "never"]);
