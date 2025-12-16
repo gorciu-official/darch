@@ -1,7 +1,7 @@
 # darch 
 Darch is a small tool allowing you to declarativelly install packages on Arch-based distributions.
 
-- 🚀 automatically upgrades the system - both pacman and flatpak (AUR in the nearest future)
+- 🚀 automatically upgrades the system: pacman, flatpak and AUR (if AUR helper exists)
 - 🔙 saves the old configuration on success in case something goes wrong
 
 ## Configuration
