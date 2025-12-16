@@ -1,0 +1,36 @@
+name: Rust PR CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Rust
+      uses: actions/setup-rust@v1
+      with:
+        rust-version: stable
+
+    - name: Compile Rust project
+      id: build
+      run: |
+        set -o pipefail
+        cargo build 2>&1 | tee build.log
+
+    - name: Check build result
+      if: failure()
+      run: |
+        LOG=$(tail -n 50 build.log | sed 's/"/\\"/g') 
+        PAYLOAD=$(jq -n --arg body "$LOG" '{body: ("Build failed:\n" + $body), event: "REQUEST_CHANGES"}')
+        PR_URL=$(jq -r .pull_request.url "$GITHUB_EVENT_PATH")
+        curl -s -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github+json" \
+          "$PR_URL/reviews" \
+          -d "$PAYLOAD"
