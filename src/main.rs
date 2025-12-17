@@ -2,6 +2,7 @@ mod config;
 mod pacman;
 mod printer;
 mod shell;
+mod users;
 
 use crate::config::{SysConfig, parse_config, read_file, save_old_config};
 use crate::pacman::install_if_missing;
