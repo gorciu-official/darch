@@ -9,7 +9,7 @@ use std::{fs, process};
 pub struct UserConfig {
     pub user: String,
     pub groups: Vec<String>,
-    pub displayname: String,
+    pub displayname: Option<String>,
     pub shell: String,
 }
 
