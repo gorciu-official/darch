@@ -113,7 +113,7 @@ fn main() {
 
     run("/usr/bin/pacman", &["-Syu", "--color", "never"]);
 
-    if cfg
+    if prev
         .packages
         .as_ref()
         .is_some_and(|p| p.contains(&"flatpak".to_string()))
