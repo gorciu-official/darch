@@ -27,8 +27,8 @@ shells = [
 ]
 
 [[users]]
-user = gorciu
-groups = ["wheel", "docker"],
+user = "gorciu"
+groups = ["wheel", "docker"]
 displayname = "The Gorciu User"
 shell = "/usr/bin/bash"
 ```
