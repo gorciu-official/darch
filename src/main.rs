@@ -4,11 +4,90 @@ mod printer;
 mod shell;
 mod users;
 
-use crate::config::{SysConfig, parse_config, read_file, save_old_config};
+use crate::config::{SysConfig, UserConfig, parse_config, read_file, save_old_config};
 use crate::pacman::install_if_missing;
 use crate::printer::{print_error, print_header, print_warning};
 use crate::shell::{check_for_shell_warnings, run};
 use std::{fs, process};
+use std::collections::HashMap;
+use std::io::{self, Write};
+use std::process::Command;
+
+fn ensure_groups_exist(groups: &[String]) {
+    for group in groups {
+        let exists = Command::new("getent")
+            .arg("group")
+            .arg(group)
+            .status()
+            .map(|s| s.success())
+            .unwrap_or(false);
+
+        if !exists {
+            let status = Command::new("groupadd")
+                .arg(group)
+                .status();
+            if status.is_err() || !status.unwrap().success() {
+                eprintln!("failed to create group {}", group);
+            }
+        }
+    }
+}
+
+
+// todo: move to users.rs
+fn users_to_map(cfg: &SysConfig) -> HashMap<String, &UserConfig> {
+    cfg.users
+        .as_ref()
+        .into_iter()
+        .flat_map(|v| v.iter())
+        .map(|u| (u.user.as_str().to_string(), u))
+        .collect()
+}
+
+// todo: move to console.rs
+fn ask_yes_no(prompt: &str) -> bool {
+    print_warning(prompt, None);
+    print!("Would you like to continue? [y/N] ");
+    io::stdout().flush().ok();
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).ok();
+
+    matches!(input.trim(), "y" | "Y")
+}
+
+// todo: move to users.rs
+fn create_user(user: &UserConfig) {
+    ensure_groups_exist(&[user.user.clone()]);
+
+    let groups = user.groups
+        .iter()
+        .filter(|g| *g != &user.user)
+        .cloned()
+        .collect::<Vec<_>>();
+    ensure_groups_exist(&groups);
+
+    let mut cmd = Command::new("useradd");
+    cmd.arg("-m")
+       .arg("-d").arg(format!("/home/{}", user.user))
+       .arg("-g").arg(&user.user)
+       .arg("-s").arg(&user.shell);
+
+    if !groups.is_empty() {
+        cmd.arg("-G").arg(groups.join(","));
+    }
+
+    if let Some(ref displayname) = user.displayname {
+        cmd.arg("-c").arg(displayname);
+    }
+
+    cmd.arg(&user.user);
+
+    let status = cmd.status();
+    if status.is_err() || !status.unwrap().success() {
+        eprintln!("failed to create user {}", user.user);
+    }
+}
 
 fn main() {
     print_header("Processing system configuration");
@@ -79,7 +158,9 @@ fn main() {
         println!("packages unchanged");
     }
 
-    print_header("Rebuilding system configuration");
+    print_header("Applying system configuration");
+
+    println!("rebuilding shell configuration");
 
     let shells_data = cfg
         .shells
@@ -101,6 +182,37 @@ fn main() {
         .unwrap_or_else(|e| print_error("Failed to write /etc/shells", Some(&e.to_string())));
 
     check_for_shell_warnings();
+
+    println!("applying users configuration");
+
+    let prev_users = users_to_map(&prev);
+    let cfg_users = users_to_map(&cfg);
+
+    for (name, user) in &cfg_users {
+        if !prev_users.contains_key(name) {
+            create_user(user);
+        }
+    }
+
+    for name in prev_users.keys() {
+        if !cfg_users.contains_key(name) {
+            let msg = format!(
+                "applying this system configuration deletes the user {}",
+                name
+            );
+
+            if ask_yes_no(&msg) {
+                let status = Command::new("userdel")
+                    .arg("-r")
+                    .arg(name)
+                    .status();
+
+                if status.is_err() || !status.unwrap().success() {
+                    eprintln!("failed to delete user {}", name);
+                }
+            }
+        }
+    }
 
     print_header("Backing up config");
 
