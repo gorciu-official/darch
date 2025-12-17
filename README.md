@@ -25,4 +25,10 @@ packages = [
 shells = [
     "/bin/sh", "/bin/bash", "/bin/rbash", "/usr/bin/sh", "/usr/bin/bash", "/usr/bin/rbash", "/usr/bin/systemd-home-fallback-shell", "/usr/bin/git-shell",
 ]
+
+[[users]]
+user = gorciu
+groups = ["wheel", "docker"],
+displayname = "The Gorciu User"
+shell = "/usr/bin/bash"
 ```
