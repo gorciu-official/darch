@@ -117,7 +117,7 @@ pub fn read_file(path: &str) -> Option<String> {
 pub fn parse_config(raw: Option<String>) -> SysConfig {
     match raw {
         Some(data) => toml::from_str(&data).unwrap_or_else(|e| {
-            print_warning("Invalid JSON configuration", Some(&e.to_string()));
+            print_warning("Invalid TOML configuration", Some(&e.to_string()));
             SysConfig::default()
         }),
         None => SysConfig::default(),
