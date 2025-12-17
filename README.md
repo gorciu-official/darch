@@ -7,7 +7,7 @@ Darch is a small tool allowing you to declarativelly install packages and genera
 - 🤖 does all the initial setup for you, merging the configuration you've already done into /etc/sysconfig
 
 <div align="center">
-  <img width="728" height="412" alt="image" src="https://github.com/user-attachments/assets/9a720d6e-ce7b-4491-9d2e-8cdbb018ad2a" />
+  <img width="1168" height="452" alt="image" src="https://github.com/user-attachments/assets/6e452ee5-75a2-4943-b569-612d2d247b4d" />
 </div>
 
 ## Configuration
