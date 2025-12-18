@@ -2,32 +2,11 @@ use crate::pacman::get_explicit_packages;
 use crate::printer::{print_error, print_warning};
 use crate::users::{get_users};
 use serde::{Deserialize, Serialize};
+use crate::cfg::user::{UserConfig};
+use crate::cfg::system::{SystemConfig};
+use crate::cfg::files::{FileConfig};
 use std::path::Path;
 use std::{fs, process};
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct UserConfig {
-    pub user: String,
-    pub groups: Vec<String>,
-    pub displayname: Option<String>,
-    pub shell: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct SystemConfig {
-    pub hostname: Option<String>,
-    pub timezone: Option<String>,
-    pub locale: Option<String>,
-    pub keymap: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct FileConfig {
-    pub path: String,
-    pub source: Option<String>,
-    pub content: Option<String>,
-    pub mode: Option<String>, 
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SysConfig {
