@@ -73,7 +73,15 @@ fn main() {
             None,
         );
     }
-    if !remove.is_empty() && !run("/usr/bin/pacman", &["-Rns", "--color", "never"]) {
+
+    let mut remargs: Vec<&str> = Vec::new();
+    remargs.push("-Rns");
+    for pkg in &remove {
+        remargs.push(pkg);
+    }
+    remargs.push("--color");
+    remargs.push("never");
+    if !remove.is_empty() && !run("/usr/bin/pacman", &remargs) {
         print_error(
             "Failed to remove packages. Fix configuration to remove the error.",
             None,
