@@ -1,10 +1,11 @@
+use crate::cfg::files::FileConfig;
+use crate::cfg::system::SystemConfig;
+use crate::cfg::user::UserConfig;
+use crate::error_handler::Error;
 use crate::pacman::get_explicit_packages;
 use crate::printer::{print_error, print_warning};
-use crate::users::{get_users};
+use crate::users::get_users;
 use serde::{Deserialize, Serialize};
-use crate::cfg::user::{UserConfig};
-use crate::cfg::system::{SystemConfig};
-use crate::cfg::files::{FileConfig};
 use std::path::Path;
 use std::{fs, process};
 
@@ -54,8 +55,8 @@ pub fn get_timezone() -> Option<String> {
     let path = link.to_str()?;
 
     let zoneinfo = "/usr/share/zoneinfo/";
-    if path.starts_with(zoneinfo) {
-        return Some(path[zoneinfo.len()..].to_string());
+    if let Some(stripped) = path.strip_prefix(zoneinfo) {
+        return Some(stripped.to_string());
     }
 
     None
@@ -101,22 +102,20 @@ impl SysConfig {
         parse_config(Some(raw))
     }
 
-    pub fn validate_config(&self) -> bool {
+    pub fn validate_config(&self) -> Result<bool, Error> {
         if let Some(pkgs) = &self.packages
             && pkgs.iter().any(|x| x.is_empty())
         {
-            print_error("packages must contain only non-empty strings", None);
-            return false;
+            return Err(Error::PackageEmptyString);
         }
 
         if let Some(shells) = &self.shells
             && shells.iter().any(|x| x.is_empty())
         {
-            print_error("shells must contain only non-empty strings", None);
-            return false;
+            return Err(Error::ShellEmptyString);
         }
 
-        true
+        Ok(true)
     }
 
     pub fn difference(&self, prev: &SysConfig) -> (Vec<String>, Vec<String>) {

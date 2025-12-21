@@ -1,18 +1,24 @@
+mod cfg;
 mod config;
+mod error_handler;
 mod pacman;
 mod printer;
 mod shell;
 mod users;
-mod cfg;
 
 use crate::config::{SysConfig, parse_config, read_file, save_old_config};
-use crate::printer::ask_yes_no;
+use crate::error_handler::ErrorHandler;
 use crate::pacman::install_if_missing;
+use crate::printer::ask_yes_no;
 use crate::printer::{print_error, print_header, print_warning};
 use crate::shell::{check_for_shell_warnings, run};
-use std::{fs, process};
+use crate::users::{create_user, users_to_map};
+use std::fs;
 use std::process::Command;
-use crate::users::{users_to_map, create_user};
+
+struct Handler;
+
+impl ErrorHandler for Handler {}
 
 fn main() {
     print_header("Processing system configuration");
@@ -20,16 +26,12 @@ fn main() {
     let cfg = SysConfig::read_or_generate_config("/etc/sysconfig");
     let prev = parse_config(read_file("/etc/sysconfig.old"));
 
-    if !cfg.validate_config() {
-        print_error("Config validation failed. Aborting.", None);
-
-        process::exit(-1);
+    if let Err(e) = cfg.validate_config() {
+        Handler.handle(&e);
     }
 
-    if !prev.validate_config() {
-        print_error("Old config validation failed. Aborting.", None);
-
-        process::exit(-1);
+    if let Err(e) = prev.validate_config() {
+        Handler.handle(&e);
     }
 
     let (add, remove) = cfg.difference(&prev);
@@ -135,10 +137,7 @@ fn main() {
             );
 
             if ask_yes_no(&msg) {
-                let status = Command::new("userdel")
-                    .arg("-r")
-                    .arg(name)
-                    .status();
+                let status = Command::new("userdel").arg("-r").arg(name).status();
 
                 if status.is_err() || !status.unwrap().success() {
                     eprintln!("failed to delete user {}", name);

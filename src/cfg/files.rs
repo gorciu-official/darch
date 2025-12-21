@@ -5,5 +5,5 @@ pub struct FileConfig {
     pub path: String,
     pub source: Option<String>,
     pub content: Option<String>,
-    pub mode: Option<String>, 
+    pub mode: Option<String>,
 }

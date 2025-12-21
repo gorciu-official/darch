@@ -1,7 +1,7 @@
+use crate::cfg::user::UserConfig;
+use crate::config::SysConfig;
 use std::collections::HashMap;
 use std::fs;
-use crate::cfg::user::{UserConfig};
-use crate::config::SysConfig;
 use std::process::Command;
 
 pub fn ensure_groups_exist(groups: &[String]) {
@@ -14,9 +14,7 @@ pub fn ensure_groups_exist(groups: &[String]) {
             .unwrap_or(false);
 
         if !exists {
-            let status = Command::new("groupadd")
-                .arg(group)
-                .status();
+            let status = Command::new("groupadd").arg(group).status();
             if status.is_err() || !status.unwrap().success() {
                 eprintln!("failed to create group {}", group);
             }
@@ -75,9 +73,10 @@ fn get_primary_group(gid: &str) -> Option<String> {
 }
 
 pub fn create_user(user: &UserConfig) {
-    ensure_groups_exist(&[user.user.clone()]);
+    ensure_groups_exist([user.user.clone()].as_ref());
 
-    let groups = user.groups
+    let groups = user
+        .groups
         .iter()
         .filter(|g| *g != &user.user)
         .cloned()
@@ -86,9 +85,12 @@ pub fn create_user(user: &UserConfig) {
 
     let mut cmd = Command::new("useradd");
     cmd.arg("-m")
-       .arg("-d").arg(format!("/home/{}", user.user))
-       .arg("-g").arg(&user.user)
-       .arg("-s").arg(&user.shell);
+        .arg("-d")
+        .arg(format!("/home/{}", user.user))
+        .arg("-g")
+        .arg(&user.user)
+        .arg("-s")
+        .arg(&user.shell);
 
     if !groups.is_empty() {
         cmd.arg("-G").arg(groups.join(","));
@@ -138,10 +140,7 @@ pub fn get_users() -> Vec<UserConfig> {
             Some(raw_gecos.to_string())
         };
 
-        let mut groups = groups_map
-            .get(&user)
-            .cloned()
-            .unwrap_or_default();
+        let mut groups = groups_map.get(&user).cloned().unwrap_or_default();
 
         if let Some(primary) = get_primary_group(gid) {
             groups.push(primary);
