@@ -4,8 +4,9 @@ mod printer;
 mod shell;
 mod users;
 mod cfg;
+mod system;
 
-use crate::config::{SysConfig, parse_config, read_file, save_old_config};
+use crate::config::{SysConfig, read_file, save_old_config};
 use crate::printer::ask_yes_no;
 use crate::pacman::install_if_missing;
 use crate::printer::{print_error, print_header, print_warning};
@@ -18,7 +19,7 @@ fn main() {
     print_header("Processing system configuration");
 
     let cfg = SysConfig::read_or_generate_config("/etc/sysconfig");
-    let prev = parse_config(read_file("/etc/sysconfig.old"));
+    let prev = SysConfig::read_or_clone_other_config("/etc/sysconfig.old", &cfg);
 
     if !cfg.validate_config() {
         print_error("Config validation failed. Aborting.", None);
@@ -92,6 +93,9 @@ fn main() {
     }
 
     print_header("Applying system configuration");
+
+    println!("changing regional settings");
+    system::apply_system_config(&cfg, &prev);
 
     println!("rebuilding shell configuration");
 

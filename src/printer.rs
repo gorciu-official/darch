@@ -9,7 +9,7 @@ pub fn print_error(msg: &str, detail: Option<&str>) {
     eprintln!("{}", format!("ERROR: {msg}").bright_red());
 
     if let Some(d) = detail {
-        eprintln!("  -> {}", d);
+        eprintln!("   -> {}", d);
     }
 }
 
@@ -17,7 +17,7 @@ pub fn print_warning(msg: &str, detail: Option<&str>) {
     eprintln!("{}", format!("WARN: {msg}").bright_yellow());
 
     if let Some(d) = detail {
-        eprintln!("  -> {}", d);
+        eprintln!("   -> {}", d);
     }
 }
 
