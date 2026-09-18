@@ -83,6 +83,7 @@ impl Default for SysConfig {
 impl SysConfig {
     pub fn read_or_generate_config(path: &str) -> SysConfig {
         if !Path::new(path).exists() {
+            println!("config not found, auto-generating...");
             return generate_base_config(path);
         }
 
@@ -156,7 +157,7 @@ impl SysConfig {
     }
 }
 
-fn generate_base_config(path: &str) -> SysConfig {
+pub fn generate_base_config(path: &str) -> SysConfig {
     println!("generating base system configuration");
 
     let cfg = SysConfig::default();
