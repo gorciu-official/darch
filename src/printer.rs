@@ -6,18 +6,18 @@ pub fn print_header(msg: &str) {
 }
 
 pub fn print_error(msg: &str, detail: Option<&str>) {
-    eprintln!("{}", format!("ERROR: {msg}").bright_red());
+    eprintln!("{} {}", "error:".bright_red().bold(), msg);
 
     if let Some(d) = detail {
-        eprintln!("   -> {}", d);
+        eprintln!("   {}", d);
     }
 }
 
 pub fn print_warning(msg: &str, detail: Option<&str>) {
-    eprintln!("{}", format!("WARN: {msg}").bright_yellow());
+    eprintln!("{} {}", "warning:".bright_yellow().bold(), msg);
 
     if let Some(d) = detail {
-        eprintln!("   -> {}", d);
+        eprintln!("   {}", d);
     }
 }
 
