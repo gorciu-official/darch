@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use crate::cfg::user::{UserConfig, UserPackages};
 use crate::config::SysConfig;
+use crate::packages::aur::get_aur_packages;
 use std::process::Command;
 
 pub fn ensure_groups_exist(groups: &[String]) {
@@ -152,7 +153,7 @@ pub fn get_users() -> Vec<UserConfig> {
 
         let packages = UserPackages {
             flatpak: None,
-            aur: None
+            aur: Some(get_aur_packages()) 
         };
 
         users.push(UserConfig {
