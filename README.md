@@ -1,5 +1,5 @@
 # darch 
-Darch is a small tool allowing you to declarativelly install packages and generate configs on Arch-based distributions. The goal is to make a full system configuration in one organised file, while still allowing to benefit from Arch's architecture.
+Darch is a small tool allowing you to declarativelly install packages and generate configs on Arch-based distributions. The goal is to make a full system configuration in one organised file, while still allowing to benefit from Arch's architecture. NixOS, but better.
 
 - 🚀 automatically upgrades the system: both pacman and flatpak
 - 🔙 saves the old configuration on success in case something goes wrong

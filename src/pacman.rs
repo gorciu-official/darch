@@ -2,6 +2,7 @@ use crate::printer::print_error;
 use crate::shell::run;
 use std::process;
 use std::process::Command;
+use std::collections::HashSet;
 
 pub fn is_installed(pkg: &str) -> bool {
     Command::new("pacman")
@@ -36,13 +37,27 @@ pub fn get_explicit_packages() -> Vec<String> {
         .output()
         .unwrap_or_else(|_| {
             print_error("Failed to run pacman -Qe", None);
-
             process::exit(1);
         });
+
+    let foreign_output = Command::new("pacman")
+        .args(["-Qm"])
+        .output()
+        .unwrap_or_else(|_| {
+            print_error("Failed to run pacman -Qm", None);
+            process::exit(1);
+        });
+
+    let foreign: HashSet<String> = String::from_utf8_lossy(&foreign_output.stdout)
+        .lines()
+        .filter_map(|l| l.split_whitespace().next())
+        .map(str::to_owned)
+        .collect();
 
     String::from_utf8_lossy(&output.stdout)
         .lines()
         .filter_map(|l| l.split_whitespace().next())
-        .map(|s| s.to_string())
+        .filter(|pkg| !foreign.contains(*pkg))
+        .map(str::to_owned)
         .collect()
 }

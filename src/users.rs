@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
-use crate::cfg::user::{UserConfig};
+use crate::cfg::user::{UserConfig, UserPackages};
 use crate::config::SysConfig;
 use std::process::Command;
 
@@ -150,11 +150,17 @@ pub fn get_users() -> Vec<UserConfig> {
         groups.sort();
         groups.dedup();
 
+        let packages = UserPackages {
+            flatpak: None,
+            aur: None
+        };
+
         users.push(UserConfig {
             user,
             groups,
             displayname,
             shell,
+            packages
         });
     }
 
