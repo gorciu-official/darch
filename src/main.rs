@@ -9,13 +9,24 @@ mod system;
 use crate::config::{SysConfig, read_file, save_old_config};
 use crate::printer::ask_yes_no;
 use crate::pacman::install_if_missing;
-use crate::printer::{print_error, print_header, print_warning};
+use crate::printer::{print_error, print_header};
 use crate::shell::{check_for_shell_warnings, run};
 use std::{fs, process};
 use std::process::Command;
 use crate::users::{users_to_map, create_user};
+use clap::{Parser, ValueEnum};
 
-fn main() {
+#[derive(Debug, Clone, ValueEnum, PartialEq)]
+enum Mode {
+    Rebuild,
+}
+
+#[derive(Parser, Debug)]
+struct Args {
+    mode: Mode
+}
+
+fn rebuild() {
     print_header("Processing system configuration");
 
     let cfg = SysConfig::read_or_generate_config("/etc/sysconfig");
@@ -46,6 +57,7 @@ fn main() {
     {
         run("/usr/bin/flatpak", &["update"]);
     }
+
     if cfg
         .packages
         .as_ref()
@@ -53,16 +65,12 @@ fn main() {
     {
         run("/usr/bin/yay", &[]);
     }
+
     if cfg
         .packages
         .as_ref()
         .is_some_and(|p| p.contains(&"paru".to_string()))
     {
-        print_warning(
-            "We strongly recommend you to use yay instead of paru.",
-            None,
-        );
-
         run("/usr/bin/paru", &[]);
     }
 
@@ -156,4 +164,12 @@ fn main() {
     save_old_config(&read_file("/etc/sysconfig").unwrap_or_default());
 
     println!("config backed up to /etc/sysconfig.old");
+}
+
+fn main() {
+    let args = Args::parse();
+
+    if args.mode == Mode::Rebuild {
+        rebuild();
+    }
 }
