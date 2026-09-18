@@ -1,6 +1,6 @@
 use crate::config::{SysConfig, read_file, save_old_config};
 use crate::printer::ask_yes_no;
-use crate::pacman::install_if_missing;
+use crate::packages::pacman::install_if_missing;
 use crate::printer::{print_error, print_header};
 use crate::shell::{check_for_shell_warnings, run};
 use std::{fs, process};

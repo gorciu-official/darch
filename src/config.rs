@@ -1,4 +1,4 @@
-use crate::pacman::get_explicit_packages;
+use crate::packages::pacman::get_explicit_packages;
 use crate::printer::{print_error, print_warning};
 use crate::users::{get_users};
 use serde::{Deserialize, Serialize};

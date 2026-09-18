@@ -1,5 +1,5 @@
 mod config;
-mod pacman;
+mod packages;
 mod printer;
 mod shell;
 mod users;
