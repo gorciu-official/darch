@@ -23,7 +23,7 @@ pub fn install_if_missing(packages: &[String]) -> bool {
         return true;
     }
 
-    let args: Vec<&str> = ["-S", "--color", "never"]
+    let args: Vec<&str> = ["-S", "--color", "never", "--noconfirm"]
         .into_iter()
         .chain(missing.iter().map(|s| s.as_str()))
         .collect();

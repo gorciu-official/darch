@@ -30,7 +30,7 @@ pub fn rebuild() {
 
     print_header("Upgrading system");
 
-    run("/usr/bin/pacman", &["-Syu", "--color", "never"]);
+    run("/usr/bin/pacman", &["-Syu", "--color", "never", "--noconfirm"]);
 
     if prev
         .packages
@@ -72,6 +72,7 @@ pub fn rebuild() {
     }
     remargs.push("--color");
     remargs.push("never");
+    remargs.push("--noconfirm");
     if !remove.is_empty() && !run("/usr/bin/pacman", &remargs) {
         print_error(
             "Failed to remove packages. Fix configuration to remove the error.",
